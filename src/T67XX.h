@@ -21,7 +21,7 @@
 #endif
 #include "Wire.h"
 
-#define T67XX_DEBUG 1
+#define T67XX_DEBUG 0
 
 #define T67XX_I2C_ADDR 0x15
 #define T67XX_REG_VAL_ENABLE 0xFF00

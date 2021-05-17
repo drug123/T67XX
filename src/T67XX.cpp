@@ -20,22 +20,67 @@ bool T67XX::begin(void) { return this->begin(T67XX_I2C_ADDR); };
 bool T67XX::begin(uint8_t Address)
 {
   _address = Address;
-  Wire.begin(Address);
 #ifdef ESP8266
+  Wire.begin();
   Wire.setClockStretchLimit(500);
-#endif
   uint8_t status = Wire.status();
-#if (T67XX_DEBUG == 1)
+#endif
+#ifdef ESP32
+  bool status = Wire.begin();
+#endif
+#ifdef AVR
+  Wire.begin();
+  bool status = true;
+#endif
+
+#ifdef T67XX_DEBUG
   Serial.println("T67XX: Initiate I2C communication");
   Serial.print("T67XX: Wire reported status: ");
   Serial.println(status);
 #endif
-  return !status;
+
+#ifdef ESP8266
+  return status == 0;
+#else
+  return status;
+#endif
 };
+
+#if defined(ESP8266) || defined(ESP32)
+bool T67XX::begin(uint8_t sda, uint8_t scl)
+{
+  return this->begin(sda, scl, T67XX_I2C_ADDR);
+}
+
+bool T67XX::begin(uint8_t sda, uint8_t scl, uint8_t Address)
+{
+  _address = Address;
+#ifdef ESP8266
+  Wire.begin(sda, scl);
+  Wire.setClockStretchLimit(500);
+  uint8_t status = Wire.status();
+#else
+  bool status = Wire.begin(sda, scl);
+#endif
+
+#ifdef T67XX_DEBUG
+  Serial.println("T67XX: Initiate I2C communication");
+  Serial.print("T67XX: Wire reported status: ");
+  Serial.println(status);
+#endif
+
+#ifdef ESP8266
+  return status == 0;
+#else
+  return status;
+#endif
+}
+#endif
+
 
 uint16_t T67XX::readPPM(void)
 {
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.println("T67XX: Requesting CO2 PPM value");
 #endif
   return this->read16(T67XX_REG_PPM);
@@ -43,14 +88,14 @@ uint16_t T67XX::readPPM(void)
 
 uint16_t T67XX::getStatus(void)
 {
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.println("T67XX: Requesting sensor status");
 #endif
 
   uint16_t _sta = this->read16(T67XX_REG_STATUS);
   _status.set(_sta);
 
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.print("T67XX: Status of the sensor: ");
   Serial.println(_sta);
   Serial.print("T67XX: ");
@@ -68,7 +113,7 @@ uint16_t T67XX::getStatus(void)
 
 uint16_t T67XX::getFirmwareVersion(void)
 {
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.println("T67XX: Requesting firmware version");
 #endif
   return this->read16(T67XX_REG_FIRMWARE);
@@ -76,7 +121,7 @@ uint16_t T67XX::getFirmwareVersion(void)
 
 void T67XX::reset(void)
 {
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.println("T67XX: Performing reset");
 #endif
   this->write16(T67XX_REG_RESET, T67XX_REG_VAL_ENABLE);
@@ -84,7 +129,7 @@ void T67XX::reset(void)
 
 void T67XX::setABCMode(bool Enabled)
 {
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.print("T67XX: Setting ABC self-calibration to ");
   Serial.println(Enabled ? "Enabled" : "Disabled");
 #endif
@@ -94,7 +139,7 @@ void T67XX::setABCMode(bool Enabled)
 
 uint8_t T67XX::setSlaveAddress(uint8_t Address)
 {
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.print("T67XX: Setting new I2C address 0x");
   Serial.println(Address, HEX);
 #endif
@@ -103,7 +148,7 @@ uint8_t T67XX::setSlaveAddress(uint8_t Address)
 
 void T67XX::flashUpdate(void)
 {
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.println("T67XX: Updating flash with settings in RAM");
 #endif
   this->write16(T67XX_REG_FLASH_UPDATE, T67XX_REG_VAL_ENABLE);
@@ -113,7 +158,7 @@ bool T67XX::beginCalibration(void) { beginCalibration(false); };
 
 bool T67XX::beginCalibration(bool waitForCompletion)
 {
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.print("T67XX: Begin single point calibration and ");
   Serial.println(waitForCompletion ? "wait for copletion"
                                    : "do not wait for completion");
@@ -128,7 +173,7 @@ bool T67XX::beginCalibration(bool waitForCompletion)
 
 bool T67XX::endCalibration(void)
 {
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.println("T67XX: Terminating single point calibration");
 #endif
   this->write16(T67XX_REG_SPCAL, T67XX_REG_VAL_DISABLE);
@@ -152,7 +197,7 @@ uint16_t T67XX::read16(uint16_t addr)
   _data[1] = Wire.read();
   _data[2] = Wire.read();
   _data[3] = Wire.read();
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.print("T67XX: Returned function = ");
   Serial.println(_data[0]);
   Serial.print("T67XX: Returned byte count = ");
@@ -183,7 +228,7 @@ void T67XX::write8(uint16_t addr, uint8_t data)
   _data[2] = Wire.read();
   _data[3] = Wire.read();
   _data[4] = Wire.read();
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.print("T67XX: Returned function = ");
   Serial.println(_data[0]);
   Serial.print("T67XX: Returned Address MSB = ");
@@ -215,7 +260,7 @@ void T67XX::write16(uint16_t addr, uint16_t data)
   _data[2] = Wire.read();
   _data[3] = Wire.read();
   _data[4] = Wire.read();
-#if (T67XX_DEBUG == 1)
+#ifdef T67XX_DEBUG
   Serial.print("T67XX: Returned function = ");
   Serial.println(_data[0]);
   Serial.print("T67XX: Returned Address MSB = ");

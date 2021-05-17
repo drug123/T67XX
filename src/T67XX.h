@@ -21,7 +21,7 @@
 #endif
 #include "Wire.h"
 
-#define T67XX_DEBUG 0
+//#define T67XX_DEBUG
 
 #define T67XX_I2C_ADDR 0x15
 #define T67XX_REG_VAL_ENABLE 0xFF00
@@ -48,6 +48,10 @@ public:
   T67XX();
   bool begin(void);
   bool begin(uint8_t Address);
+#if defined(ESP8266) || defined(ESP32)
+  bool begin(uint8_t sda, uint8_t scl);
+  bool begin(uint8_t sda, uint8_t scl, uint8_t Address);
+#endif
   uint16_t readPPM(void);
   uint16_t getStatus(void);
   uint16_t getFirmwareVersion(void);

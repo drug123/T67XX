@@ -16,9 +16,9 @@
 #include <T67XX.h>
 #include <Wire.h>
 
-#define USE_OLED 1
+//#define USE_OLED
 
-#if (USE_OLED == 1)
+#ifdef USE_OLED
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
@@ -30,7 +30,7 @@ const int buttonPin = 0;
 
 void setup()
 {
-#if (USE_OLED == 1)
+#ifdef USE_OLED
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.display();
 
@@ -69,7 +69,7 @@ void setup()
     strBinStatus.remove(0, strBinStatus.length() - 16);
     Serial.println(strBinStatus);
 
-#if (USE_OLED == 1)
+#ifdef USE_OLED
     display.setCursor(0, 0);
     display.clearDisplay();
     display.print("Status: ");
@@ -115,7 +115,7 @@ void loop()
   {
     delay(T67XX_MEASURE_DELAY);
     _sensorStatus = co2sensor.getStatus();
-#if (USE_OLED == 1)
+#ifdef USE_OLED
     display.setCursor(0, 0);
     display.clearDisplay();
     display.print("CO2 PPM: ");

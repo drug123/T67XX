@@ -57,11 +57,13 @@ public:
   uint16_t getFirmwareVersion(void);
   void reset(void);
   void setABCMode(bool Enabled);
-  uint8_t setSlaveAddress(uint8_t Address);
+#if defined(T67XX_DEBUG)
+  void setSlaveAddress(uint8_t Address);
+#endif
   void flashUpdate(void);
-  bool beginCalibration(void);
-  bool beginCalibration(bool waitForCompletion);
-  bool endCalibration(void);
+  void beginCalibration(void);
+  void beginCalibration(bool waitForCompletion);
+  void endCalibration(void);
 
   // 0: no error; 1: error has occurred
   struct status {

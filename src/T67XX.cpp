@@ -137,14 +137,13 @@ void T67XX::setABCMode(bool Enabled)
                 Enabled ? T67XX_REG_VAL_ENABLE : T67XX_REG_VAL_DISABLE);
 };
 
-uint8_t T67XX::setSlaveAddress(uint8_t Address)
-{
 #ifdef T67XX_DEBUG
+void T67XX::setSlaveAddress(uint8_t Address)
+{
   Serial.print("T67XX: Setting new I2C address 0x");
   Serial.println(Address, HEX);
-#endif
-  // TODO:
 };
+#endif
 
 void T67XX::flashUpdate(void)
 {
@@ -154,9 +153,9 @@ void T67XX::flashUpdate(void)
   this->write16(T67XX_REG_FLASH_UPDATE, T67XX_REG_VAL_ENABLE);
 }
 
-bool T67XX::beginCalibration(void) { beginCalibration(false); };
+void T67XX::beginCalibration(void) { beginCalibration(false); };
 
-bool T67XX::beginCalibration(bool waitForCompletion)
+void T67XX::beginCalibration(bool waitForCompletion)
 {
 #ifdef T67XX_DEBUG
   Serial.print("T67XX: Begin single point calibration and ");
@@ -171,7 +170,7 @@ bool T67XX::beginCalibration(bool waitForCompletion)
   } while (waitForCompletion && _status.SINGLE_POINT_CAL);
 };
 
-bool T67XX::endCalibration(void)
+void T67XX::endCalibration(void)
 {
 #ifdef T67XX_DEBUG
   Serial.println("T67XX: Terminating single point calibration");
